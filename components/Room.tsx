@@ -235,14 +235,16 @@ export function Room({
         <div className="card-body">
           {/* 頂部標題區塊：包含上一頁按鈕與房間資訊 */}
           <div className="mb-6 flex items-center justify-between gap-2">
-            <button
-              className="btn shrink-0 btn-sm btn-outline sm:w-24"
-              aria-label="回上一頁"
-              onClick={onBack}
-            >
-              <span className="icon-[ic--baseline-arrow-back-ios-new]"></span>
-              <span className="hidden sm:inline">上一頁</span>
-            </button>
+            {onBack && (
+              <button
+                className="btn shrink-0 btn-sm btn-outline sm:w-24"
+                aria-label="回上一頁"
+                onClick={onBack}
+              >
+                <span className="icon-[ic--baseline-arrow-back-ios-new]"></span>
+                <span className="hidden sm:inline">上一頁</span>
+              </button>
+            )}
 
             <h2 className="flex-1 text-center text-xl font-bold text-base-content sm:text-2xl">
               房間:{" "}
@@ -260,7 +262,7 @@ export function Room({
               className="btn shrink-0 btn-sm btn-outline sm:w-24"
               aria-label="複製資訊"
               onClick={() => {
-                const copyText = `Code: ${client.roomId} | PWD: ${client.password} | Link: rjpq.pearki.dev`;
+                const copyText = `Code: ${client.roomId} | PWD: ${client.password} | Link: rjpq.pearki.org`;
                 navigator.clipboard
                   .writeText(copyText)
                   .then(() => addToast("success", "已複製", 3000))

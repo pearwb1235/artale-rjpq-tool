@@ -25,7 +25,6 @@ export class Peer<D = unknown> extends EventEmitter<EventMap<PeerEvents>> {
     this.peer.on("open", this.onOpen.bind(this));
     this.peer.on("connection", this.onConnection.bind(this));
     this.peer.on("error", this.onError.bind(this));
-    this.peer.on("close", () => console.log("?????"));
 
     if (typeof window !== "undefined") {
       window.addEventListener(

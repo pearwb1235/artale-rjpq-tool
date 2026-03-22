@@ -91,6 +91,10 @@ export default function Home() {
     },
     [client],
   );
+  const onLeaveRoom = React.useCallback(() => {
+    if (!client) return;
+    client.leaveRoom();
+  }, [client]);
 
   React.useEffect(() => {
     if (!client) return;
@@ -116,7 +120,7 @@ export default function Home() {
       {isLoading ? (
         <Loading />
       ) : client?.isConnected ? (
-        <Room addToast={addToast} client={client} />
+        <Room addToast={addToast} client={client} onBack={onLeaveRoom} />
       ) : (
         <RoomLobby onCreateRoom={onCreateRoom} onJoinRoom={onJoinRoom} />
       )}
