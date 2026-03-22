@@ -1,65 +1,125 @@
-import Image from "next/image";
+"use client";
+
+import { Loading } from "@/components/Loading";
+import { Room } from "@/components/Room";
+import { RoomLobby } from "@/components/RoomLobby";
+import { ToastContainer, ToastMsg, ToastType } from "@/components/ToastItem";
+import { Client } from "@/lib/client";
+import { Server } from "@/lib/server";
+import React, { useCallback } from "react";
 
 export default function Home() {
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [client, setClient] = React.useState<Client | null>(null);
+  const [server, setServer] = React.useState<Server | null>(null);
+  const [toasts, setToasts] = React.useState<ToastMsg[]>([]);
+
+  /** 禁用右鍵菜單 */
+  React.useEffect(() => {
+    document.body.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+    });
+  }, []);
+  /** 初始化 client */
+  React.useEffect(() => {
+    const client = new Client();
+    setClient(client);
+    return client.destroy;
+  }, []);
+  /** 防止 server 記憶體洩漏 */
+  React.useEffect(() => {
+    if (!server) return;
+    const currentServer = server;
+    return () => {
+      currentServer.shutdown();
+    };
+  }, [server]);
+
+  const addToast = useCallback(
+    (type: ToastType, message: string, duration?: number) => {
+      const id = Math.random().toString(36).substring(2, 9);
+      setToasts((prev) => [...prev, { id, type, message, duration }]);
+    },
+    [],
+  );
+  const removeToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  const onCreateRoom = React.useCallback((password: string) => {
+    password = password.trim();
+    if (password.length < 4) {
+      alert("房間密碼至少需要4位數");
+      return;
+    }
+    if (!/^[0-9]+$/.test(password)) {
+      alert("房間密碼只能包含數字");
+      return;
+    }
+    setIsLoading(true);
+    const server = new Server(password);
+    function onShutdown() {
+      alert("創建房間失敗");
+      setIsLoading(false);
+    }
+    server.on("shutdown", onShutdown);
+    server.on("ready", () => {
+      setServer(server);
+      server.off("shutdown", onShutdown);
+    });
+  }, []);
+  const onJoinRoom = React.useCallback(
+    (id: string, password: string) => {
+      id = id.trim();
+      password = password.trim();
+      if (!id) {
+        alert("請輸入房間ID");
+        return;
+      }
+      if (!password) {
+        alert("請輸入房間密碼");
+        return;
+      }
+      if (!client) {
+        alert("客戶端尚未初始化完成，請稍後再試");
+        return;
+      }
+      setIsLoading(true);
+      client.joinRoom(id, password).finally(() => {
+        setIsLoading(false);
+      });
+    },
+    [client],
+  );
+
+  React.useEffect(() => {
+    if (!client) return;
+    function onDisconnection() {
+      addToast("error", "與房主連結中斷");
+    }
+    client.on("disconnection", onDisconnection);
+    return () => {
+      client.off("disconnection", onDisconnection);
+    };
+  }, [client, addToast]);
+  /** 當 client 或 server 改變時，自動加入房間 */
+  React.useEffect(() => {
+    if (!client || !server) return;
+    if (client.isConnected) client.leaveRoom();
+    onJoinRoom(server.roomId, server.password);
+  }, [client, server, onJoinRoom]);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <>
+      {/* 浮動通知容器 */}
+      <ToastContainer onClose={removeToast} toasts={toasts} />
+      {isLoading ? (
+        <Loading />
+      ) : client?.isConnected ? (
+        <Room addToast={addToast} client={client} />
+      ) : (
+        <RoomLobby onCreateRoom={onCreateRoom} onJoinRoom={onJoinRoom} />
+      )}
+    </>
   );
 }

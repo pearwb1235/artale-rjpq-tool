@@ -1,0 +1,8 @@
+{
+  "plugins": [
+    "prettier-plugin-tailwindcss",
+    "@xeonlink/prettier-plugin-organize-attributes"
+  ],
+  "attributeSort": "ASC",
+  "tailwindConfig": "./app/globals.css"
+}
