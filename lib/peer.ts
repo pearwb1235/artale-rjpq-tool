@@ -45,7 +45,7 @@ export class Peer<D = unknown> extends EventEmitter<EventMap<PeerEvents>> {
     let errorHandler: ((err: PeerError<`${PeerErrorType}`>) => void) | null =
       null;
     return new Promise<void>((resolve, reject) => {
-      this.peer.on(
+      this.on(
         "error",
         (errorHandler = (err) => {
           if (err.type === "peer-unavailable")
@@ -56,7 +56,7 @@ export class Peer<D = unknown> extends EventEmitter<EventMap<PeerEvents>> {
       conn.on("open", this.onConnection.bind(this, conn));
       conn.once("open", () => resolve(undefined));
     }).finally(() => {
-      if (errorHandler) this.peer.off("error", errorHandler);
+      if (errorHandler) this.off("error", errorHandler);
     });
   }
 
@@ -128,7 +128,7 @@ export class Peer<D = unknown> extends EventEmitter<EventMap<PeerEvents>> {
   }
 
   private onError(err: PeerError<`${PeerErrorType}`>) {
-    console.warn(`[Peer] [${this.peer.id}] Peer client error:`);
+    console.warn(`[Peer] [${this.peer.id}] Peer client error: ${err.type}`);
     console.warn(err);
     this.emit("error", err);
   }

@@ -85,11 +85,16 @@ export default function Home() {
         return;
       }
       setIsLoading(true);
-      client.joinRoom(id, password).finally(() => {
-        setIsLoading(false);
-      });
+      client
+        .joinRoom(id, password)
+        .catch(() => {
+          addToast("error", "加入房間失敗，請檢查ID和密碼是否正確");
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     },
-    [client],
+    [client, addToast],
   );
   const onLeaveRoom = React.useCallback(() => {
     if (!client) return;
