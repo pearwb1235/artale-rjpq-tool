@@ -40,6 +40,7 @@ export class Server extends EventEmitter<EventMap<ServerEvents>> {
     this.peer.on("ready", this.onReady.bind(this));
     this.peer.on("error", this.onError.bind(this));
     this.peer.on("data", this.onData.bind(this));
+    this.peer.on("connection", this.syncGrid.bind(this));
   }
 
   private onReady() {
@@ -47,6 +48,7 @@ export class Server extends EventEmitter<EventMap<ServerEvents>> {
   }
 
   private onError(err: PeerError<`${PeerErrorType}`>) {
+    console.error("[Server] Peer error:", err);
     this.shutdown();
   }
 
