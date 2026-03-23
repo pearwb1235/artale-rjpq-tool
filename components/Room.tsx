@@ -143,7 +143,11 @@ export function Room({
       return;
     }
 
-    client.markSlot(layerIndex, slotIndex, activeColor);
+    client.markSlot(
+      layerIndex,
+      slotIndex,
+      existingColor === activeColor ? 0 : activeColor,
+    );
   };
 
   // 將 10x4 的陣列轉換成 10 位數字的答案，並在中間加一個空格方便閱讀
