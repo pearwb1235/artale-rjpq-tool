@@ -53,10 +53,10 @@ export function RoomLobby({
                   <span className="label-text">房間號碼</span>
                 </label>
                 <input
-                  className="input-bordered input w-full"
+                  className="input-bordered input w-full appearance-none"
                   onChange={(e) => setJoinId(e.target.value)}
-                  placeholder="請輸入房號"
-                  type="text"
+                  placeholder="請輸入6位數房號"
+                  type="number"
                   value={joinId}
                 />
               </div>
@@ -65,10 +65,10 @@ export function RoomLobby({
                   <span className="label-text">房間密碼</span>
                 </label>
                 <input
-                  className="input-bordered input w-full"
+                  className="input-bordered input w-full appearance-none"
                   onChange={(e) => setJoinPassword(e.target.value)}
                   placeholder="請輸入密碼"
-                  type="password"
+                  type="number"
                   value={joinPassword}
                 />
               </div>
@@ -91,10 +91,10 @@ export function RoomLobby({
                   <span className="label-text">設定房間密碼</span>
                 </label>
                 <input
-                  className="input-bordered input w-full"
+                  className="input-bordered input w-full appearance-none"
                   onChange={(e) => setCreatePassword(e.target.value)}
                   placeholder="至少4位數的純數字密碼"
-                  type="password"
+                  type="number"
                   value={createPassword}
                 />
               </div>

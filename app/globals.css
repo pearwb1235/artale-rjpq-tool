@@ -5,3 +5,16 @@
 @import "flyonui/variants.css";
 @source "./node_modules/flyonui/flyonui.js";
 @plugin "@iconify/tailwind4";
+
+@layer base {
+  input[type="number"].appearance-none::-webkit-inner-spin-button,
+  input[type="number"].appearance-none::-webkit-outer-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+  }
+
+  input[type="number"].appearance-none {
+    -webkit-appearance: textfield;
+    appearance: textfield;
+  }
+}

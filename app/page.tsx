@@ -46,42 +46,53 @@ export default function Home() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  const onCreateRoom = React.useCallback((password: string) => {
-    password = password.trim();
-    if (password.length < 4) {
-      alert("房間密碼至少需要4位數");
-      return;
-    }
-    if (!/^[0-9]+$/.test(password)) {
-      alert("房間密碼只能包含數字");
-      return;
-    }
-    setIsLoading(true);
-    const server = new Server(password);
-    function onShutdown() {
-      alert("創建房間失敗");
-      setIsLoading(false);
-    }
-    server.on("shutdown", onShutdown);
-    server.on("ready", () => {
-      setServer(server);
-      server.off("shutdown", onShutdown);
-    });
-  }, []);
+  const onCreateRoom = React.useCallback(
+    (password: string) => {
+      password = password.trim();
+      if (password.length < 4) {
+        addToast("error", "房間密碼至少需要4位數");
+        return;
+      }
+      if (!/^[0-9]+$/.test(password)) {
+        addToast("error", "房間密碼只能包含數字");
+        return;
+      }
+      setIsLoading(true);
+      const server = new Server(password);
+      function onShutdown() {
+        addToast("error", "創建房間失敗");
+        setIsLoading(false);
+      }
+      server.on("shutdown", onShutdown);
+      server.on("ready", () => {
+        setServer(server);
+        server.off("shutdown", onShutdown);
+      });
+    },
+    [addToast],
+  );
   const onJoinRoom = React.useCallback(
     (id: string, password: string) => {
       id = id.trim();
       password = password.trim();
       if (!id) {
-        alert("請輸入房間ID");
+        addToast("error", "請輸入房間ID");
         return;
       }
       if (!password) {
-        alert("請輸入房間密碼");
+        addToast("error", "請輸入房間密碼");
+        return;
+      }
+      if (!/^[0-9]{6}$/.test(id)) {
+        addToast("error", "房間ID 必須是6位數字");
+        return;
+      }
+      if (password.length < 4) {
+        addToast("error", "房間密碼至少需要4位數");
         return;
       }
       if (!client) {
-        alert("客戶端尚未初始化完成，請稍後再試");
+        addToast("error", "客戶端尚未初始化完成，請稍後再試");
         return;
       }
       setIsLoading(true);
