@@ -106,9 +106,9 @@ export class Peer<D = unknown> extends EventEmitter<EventMap<PeerEvents>> {
       `[Peer] [${this.peer.id}] Received connection from ${conn.peer}.`,
     );
     this.connections.push(conn);
-    this.emit("connection", conn);
     conn.on("close", this.onDisconnection.bind(this, conn));
     conn.on("data", this.onData.bind(this, conn));
+    this.emit("connection", conn);
   }
 
   private onData(conn: DataConnection, data: unknown) {
