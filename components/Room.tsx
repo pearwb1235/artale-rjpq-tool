@@ -186,27 +186,49 @@ export function Room({
             {colorConfig[c].label}
           </button>
         ))}
-        <button
-          className={`btn btn-outline opacity-80 hover:opacity-100 ${colorConfig[0].bg.split(" ")[0]} ${colorConfig[0].bg.split(" ")[1] || ""}`}
-          onClick={togglePiP}
-        >
-          {pipWindow ? "關閉視窗" : "懸浮視窗"}
-          <span className="icon-[ic--baseline-launch]"></span>
-        </button>
+        {!pipWindow && (
+          <button
+            className={`btn btn-outline opacity-80 hover:opacity-100 ${colorConfig[0].bg.split(" ")[0]} ${colorConfig[0].bg.split(" ")[1] || ""}`}
+            onClick={togglePiP}
+          >
+            懸浮視窗
+            <span className="icon-[ic--baseline-launch]"></span>
+          </button>
+        )}
       </div>
 
       {/* 答案字串顯示區 */}
-      <div className="mb-6 flex items-center justify-between rounded-xl bg-neutral p-4 text-neutral-content shadow-lg sm:justify-start sm:gap-6">
+      <div
+        className="mb-3 flex items-center justify-between rounded-xl bg-base-100 p-4 text-base-content shadow-lg sm:gap-6"
+        data-theme="light"
+      >
         <h3 className="shrink-0 text-sm font-semibold uppercase opacity-70">
           答案字串
         </h3>
-        <p className="text-right font-mono text-lg tracking-widest break-all sm:text-left">
-          {sequenceString}
-        </p>
+        <div className="flex">
+          <p className="text-right font-mono text-lg tracking-widest break-all sm:text-left">
+            {sequenceString}
+          </p>
+          {!pipWindow && (
+            <button
+              className="btn btn-text btn-sm"
+              aria-label="複製答案"
+              onClick={() => {
+                navigator.clipboard
+                  .writeText(sequenceString)
+                  .then(() => addToast("success", "已複製", 3000))
+                  .catch((e) => addToast("error", "複製失敗"));
+              }}
+              title="複製答案"
+            >
+              <span className="icon-[ic--baseline-content-copy]"></span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* 10 層 4 列的網格 */}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-1">
         {grid.map((layer, layerIndex) => (
           <div className="group flex items-center gap-3" key={layerIndex}>
             {/* 顯示層數標籤 */}
