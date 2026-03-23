@@ -6,6 +6,9 @@ import z from "zod";
 
 const schema = z.union([
   z.object({
+    type: z.literal("sync"),
+  }),
+  z.object({
     type: z.literal("mark"),
     layer: z.number().min(0).max(9),
     slot: z.number().min(0).max(3),
@@ -40,7 +43,6 @@ export class Server extends EventEmitter<EventMap<ServerEvents>> {
     this.peer.on("ready", this.onReady.bind(this));
     this.peer.on("error", this.onError.bind(this));
     this.peer.on("data", this.onData.bind(this));
-    this.peer.on("connection", this.syncGrid.bind(this));
   }
 
   private onReady() {
@@ -68,6 +70,10 @@ export class Server extends EventEmitter<EventMap<ServerEvents>> {
       return;
     }
     switch (parsed.data.type) {
+      case "sync": {
+        this.peer.send(peerId, this.grid);
+        break;
+      }
       case "mark": {
         const { layer, slot, color } = parsed.data;
         for (const index in this.grid[layer]) {

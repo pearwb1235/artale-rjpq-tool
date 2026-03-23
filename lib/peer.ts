@@ -44,7 +44,7 @@ export class Peer<D = unknown> extends EventEmitter<EventMap<PeerEvents>> {
     }
     let errorHandler: ((err: PeerError<`${PeerErrorType}`>) => void) | null =
       null;
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<string>((resolve, reject) => {
       this.on(
         "error",
         (errorHandler = (err) => {
@@ -54,10 +54,21 @@ export class Peer<D = unknown> extends EventEmitter<EventMap<PeerEvents>> {
       );
       const conn = this.peer.connect(peerId, { reliable: true });
       conn.on("open", this.onConnection.bind(this, conn));
-      conn.once("open", () => resolve(undefined));
+      conn.once("open", () => resolve(conn.peer));
     }).finally(() => {
       if (errorHandler) this.off("error", errorHandler);
     });
+  }
+
+  send(peerId: string, data: D) {
+    const conn = this.connections.find((c) => c.peer === peerId);
+    if (!conn || !conn.open) {
+      return Promise.reject(
+        new Error(`Connection to peer ${peerId} is not open.`),
+      );
+    }
+    conn.send(data);
+    return Promise.resolve();
   }
 
   broadcast(data: D) {

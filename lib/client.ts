@@ -23,6 +23,11 @@ export class Client extends EventEmitter<EventMap<ClientEvents>> {
     return this._roomId !== null;
   }
 
+  private get peerId() {
+    if (this._roomId === null || this._password === null) return null;
+    return `pearki-rjpq-${this._roomId}-${this._password}`;
+  }
+
   get roomId() {
     return this._roomId;
   }
@@ -74,7 +79,7 @@ export class Client extends EventEmitter<EventMap<ClientEvents>> {
   }
 
   async joinRoom(roomId: string, password: string) {
-    if (this._roomId) {
+    if (this.peerId) {
       throw new Error(
         "Already in a room. Please leave the current room first.",
       );
@@ -82,10 +87,11 @@ export class Client extends EventEmitter<EventMap<ClientEvents>> {
     await this.peer.connect(`pearki-rjpq-${roomId}-${password}`);
     this._roomId = roomId;
     this._password = password;
+    this.peer.send(this.peerId!, { type: "sync" });
   }
 
   async leaveRoom() {
-    if (!this._roomId) {
+    if (!this.peerId) {
       throw new Error("Not currently in a room.");
     }
     await this.peer.disconnect(`pearki-rjpq-${this._roomId}-${this._password}`);
@@ -102,10 +108,10 @@ export class Client extends EventEmitter<EventMap<ClientEvents>> {
   }
 
   markSlot(layer: number, slot: number, color: number) {
-    if (!this._roomId) {
+    if (!this.peerId) {
       throw new Error("Not currently in a room.");
     }
-    this.peer.broadcast({
+    this.peer.send(this.peerId, {
       type: "mark",
       layer,
       slot,
@@ -114,7 +120,7 @@ export class Client extends EventEmitter<EventMap<ClientEvents>> {
   }
 
   resetGrid() {
-    if (!this._roomId) {
+    if (!this.peerId) {
       throw new Error("Not currently in a room.");
     }
     this.peer.broadcast({
