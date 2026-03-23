@@ -35,6 +35,8 @@ export class Client extends EventEmitter<EventMap<ClientEvents>> {
     super();
     this.peer = new Peer();
     this.cacheGrid = this.grid.map((layer) => [...layer]);
+    this.peer.on("data", this.onData.bind(this));
+    this.peer.on("disconnection", this.onDisconnection.bind(this));
   }
 
   private onData({ peerId, data }: { peerId: string; data: unknown }) {
@@ -80,8 +82,6 @@ export class Client extends EventEmitter<EventMap<ClientEvents>> {
     await this.peer.connect(`pearki-rjpq-${roomId}-${password}`);
     this._roomId = roomId;
     this._password = password;
-    this.peer.on("data", this.onData.bind(this));
-    this.peer.on("disconnection", this.onDisconnection.bind(this));
   }
 
   async leaveRoom() {
