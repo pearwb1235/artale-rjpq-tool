@@ -48,6 +48,11 @@ export default function Home() {
 
   const onCreateRoom = React.useCallback(
     (password: string) => {
+      if (password.length === 0) {
+        password = Math.floor(Math.random() * 10000)
+          .toString()
+          .padStart(4, "0");
+      }
       password = password.trim();
       if (password.length < 4) {
         addToast("error", "房間密碼至少需要4位數");

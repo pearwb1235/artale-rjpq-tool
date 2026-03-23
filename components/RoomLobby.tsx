@@ -93,7 +93,7 @@ export function RoomLobby({
                 <input
                   className="input-bordered input w-full appearance-none"
                   onChange={(e) => setCreatePassword(e.target.value)}
-                  placeholder="至少4位數的純數字密碼"
+                  placeholder="至少4位數的純數字密碼 (留空自動生成)"
                   type="number"
                   value={createPassword}
                 />
